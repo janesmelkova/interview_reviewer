@@ -3,7 +3,7 @@ import streamlit as st
 import whisper
 
 # Load the Whisper model
-model = whisper.load_model("large")
+model = whisper.load_model("large") # change the model -- tbu add tickbox to the interface
 
 
 def transcribe_audio(model, audio_path, output_file, language):
@@ -30,7 +30,6 @@ def main():
     st.markdown(logo_html, unsafe_allow_html=True)
 
 
-    #st.title('Transcribe your audio')
     header_html = '<p style="color:#1a7fe3; font-size: 24px; text-align: center;">Audio Transcription</p>'
     st.markdown(header_html, unsafe_allow_html=True)
 
@@ -38,7 +37,7 @@ def main():
     languages = {
         "Russian": "ru",
         "English": "en",
-        # Add more languages if needed
+        # Add more languages
     }
 
     selected_language = st.selectbox("Select language", list(languages.keys()))
@@ -50,7 +49,6 @@ def main():
         st.markdown("### Transcription in progress...")
 
         # Save the uploaded audio file temporarily
-        import os
         import tempfile
 
         temp_audio_path = tempfile.mkstemp(suffix=".mp3")[1]
@@ -79,19 +77,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-
-
-
-
-
-
-
-
-
-# Define the audio file path and output file path
-#audio_path = "/Users/zhannasmelkova/Desktop/ИИ/Тест для собеседований переводчиков/2021-11-29-Gazprom-MO-RUS-3 min.mp3"
-#output_file = "/Users/zhannasmelkova/Desktop/ИИ/Тест для собеседований переводчиков/2021-11-29-Gazprom-MO-RUS-3 min-1.txt"
-
-# Transcription process
-#transcribe_audio(model, audio_path, output_file)
