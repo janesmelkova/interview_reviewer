@@ -1,6 +1,7 @@
 import base64
 import streamlit as st
 import whisper
+import tempfile
 
 # Load the Whisper model
 model = whisper.load_model("large") # change the model -- tbu add tickbox to the interface
@@ -43,37 +44,49 @@ def main():
     selected_language = st.selectbox("Select language", list(languages.keys()))
     language_code = languages[selected_language]
 
-    audio_file = st.file_uploader("Upload audio file", type=["mp3", "wav"])
+    original_audio_file = st.file_uploader("Upload original audio file", type=["mp3", "wav"])
+    translated_audio_file = st.file_uploader("Upload translated audio file", type=["mp3", "wav"])
 
-    if audio_file is not None:
+    if original_audio_file is not None and translated_audio_file is not None:
         st.markdown("### Transcription in progress...")
 
-        # Save the uploaded audio file temporarily
-        import tempfile
+        temp_original_audio_path = tempfile.mkstemp(suffix=".mp3")[1]
+        with open(temp_original_audio_path, "wb") as f:
+            f.write(original_audio_file.getbuffer())
 
-        temp_audio_path = tempfile.mkstemp(suffix=".mp3")[1]
-        with open(temp_audio_path, "wb") as f:
-            f.write(audio_file.getbuffer())
+        temp_translated_audio_path = tempfile.mkstemp(suffix=".mp3")[1]
+        with open(temp_translated_audio_path, "wb") as f:
+            f.write(translated_audio_file.getbuffer())
 
-        # Transcription process
-        output_file = transcribe_audio(model, temp_audio_path, "transcription.txt", language_code)
+        original_output_file = transcribe_audio(model, temp_original_audio_path, "original_transcription.txt",
+                                                language_code)
+        translated_output_file = transcribe_audio(model, temp_translated_audio_path, "translated_transcription.txt",
+                                                  language_code)
 
         st.markdown("### Transcription completed!")
 
-        # Display the transcription result
-        with open(output_file, "r") as f:
-            transcription_result = f.read()
-        st.text_area("Transcription", transcription_result)
+        with open(original_output_file, "r") as f:
+            original_transcription_result = f.read()
+        st.text_area("Original Transcription", original_transcription_result)
 
-        # Allow user to download the transcription result
-        st.markdown("### Download transcription as a text file")
+        with open(translated_output_file, "r") as f:
+            translated_transcription_result = f.read()
+        st.text_area("Translated Transcription", translated_transcription_result)
+
+        st.markdown("### Download transcriptions as text files")
         st.download_button(
-            label="Download",
-            data=open(output_file, "rb").read(),
-            file_name="transcription.txt",
+            label="Download Original",
+            data=open(original_output_file, "rb").read(),
+            file_name="original_transcription.txt",
+            mime="text/plain",
+        )
+        st.download_button(
+            label="Download Translated",
+            data=open(translated_output_file, "rb").read(),
+            file_name="translated_transcription.txt",
             mime="text/plain",
         )
 
+
 if __name__ == "__main__":
     main()
-
