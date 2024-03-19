@@ -2,15 +2,11 @@ import base64
 import streamlit as st
 import whisper
 import tempfile
-from openai import OpenAI
+import requests
 import os
 
 # Load the Whisper model
 wisp_model = whisper.load_model("small")
-client = OpenAI(
-    api_key='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'
-)
-
 
 def transcribe_audio(wisp_model, audio_path, output_file, language):
     # Load the audio file and transcribe it with progress bar and timer
@@ -28,20 +24,38 @@ def transcribe_audio(wisp_model, audio_path, output_file, language):
     return output_file
 
 def evaluate_translation(updated_original_text, updated_translated_text, updated_source_language, updated_target_language):
+    mistral_api_key = os.environ.get("MISTRAL_API_KEY")
+    if not mistral_api_key:
+        return "Ошибка: API ключ Mistral AI не найден."
+    mistral_api_url = "https://api.mistral.ai/v1/chat/completions"
+
+    headers = {
+        "Authorization": f"Bearer {mistral_api_key}",
+        "Content-Type": "application/json",
+    }
+
     prompt = f"Evaluate the translation of the following text from {updated_source_language} to {updated_target_language}, considering both content and formality. Provide scores for the following criteria, where each score is between 0 and 1:\n\nContent (weight 1):\n1.1. Correspondence of names, titles\n1.2. Correspondence of numbers with consideration of rounding\n1.3. Meaning\n\nFormality (weight 0.5):\n2.1. Authenticity of phrases\n2.2. Syntax (sentence completion)\n2.3. Morphology (agreement of forms)\n\nOriginal text:\n{updated_original_text}\n\nTranslated text:\n{updated_translated_text}"
 
-    response = client.completions.create(
-        model="text-davinci-003",
-        prompt=prompt,
-        temperature=0.7,
-        max_tokens=512,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0,
-        n=1,
-    )
-    evaluation = response.choices[0].text
-    return evaluation
+    data = {
+        "model": "open-mistral-7b",
+        "prompt": prompt,
+        "max_tokens": 512,
+        "temperature": 0.7,
+        "top_p": 1,
+        "frequency_penalty": 0,
+        "presence_penalty": 0,
+        "n": 1,
+    }
+    try:
+        response = requests.post(mistral_api_url, headers=headers, json=data)
+
+        if response.status_code == 200:
+            evaluation = response.json()["choices"][0]["text"]
+            return evaluation
+        else:
+            return f"Ошибка: API вернул статус {response.status_code}."
+    except requests.exceptions.RequestException as e:
+        return f"Ошибка при выполнении запроса к API Mistral: {e}"
 
 def main():
     # Set the Streamlit interface
@@ -52,7 +66,7 @@ def main():
     logo_html = f'<div style="text-align: center;"><img src="data:image/png;base64,{logo_data}" style="max-width: 600px; max-height: 600px; display: block; margin: auto;" /></div>'
     st.markdown(logo_html, unsafe_allow_html=True)
 
-    header_html = '<p style="color:#1a7fe3; font-size: 24px; text-align: center;">Interview Reviewer</p>'
+    header_html = '<p style="color:#1a7fe3; font-size: 24px; text-align: center;">Interview Review</p>'
     st.markdown(header_html, unsafe_allow_html=True)
 
     transcription_languages = {
@@ -100,17 +114,17 @@ def main():
 
         with open(original_output_file, "r") as f:
             original_transcription_result = f.read()
-        st.text_area("Original Transcription", original_transcription_result)
+        st.text_area("original_transcription", original_transcription_result)
 
         with open(translated_output_file, "r") as f:
             translated_transcription_result = f.read()
-        st.text_area("Translated Transcription", translated_transcription_result)
+        st.text_area("translated_transcription", translated_transcription_result)
 
-        # Evaluate the translation using GPT-4
+        # Evaluate the translation using Mistral
         evaluation = evaluate_translation(original_transcription_result, translated_transcription_result,
                                           original_language_name, translated_language_name)
 
-        st.markdown("### Translation evaluation by GPT-4:")
+        st.markdown("### Translation evaluation by Mistral:")
         st.text_area("Evaluation", evaluation)
 
         # Allow user to download the evaluation result
