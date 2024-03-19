@@ -8,7 +8,7 @@ import os
 # Load the Whisper model
 wisp_model = whisper.load_model("small")
 client = OpenAI(
-    api_key='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'
+    api_key=os.getenv('OPENAI_API_KEY')
 )
 
 
@@ -28,20 +28,21 @@ def transcribe_audio(wisp_model, audio_path, output_file, language):
     return output_file
 
 def evaluate_translation(updated_original_text, updated_translated_text, updated_source_language, updated_target_language):
-    prompt = f"Evaluate the translation of the following text from {updated_source_language} to {updated_target_language}, considering both content and formality. Provide scores for the following criteria, where each score is between 0 and 1:\n\nContent (weight 1):\n1.1. Correspondence of names, titles\n1.2. Correspondence of numbers with consideration of rounding\n1.3. Meaning\n\nFormality (weight 0.5):\n2.1. Authenticity of phrases\n2.2. Syntax (sentence completion)\n2.3. Morphology (agreement of forms)\n\nOriginal text:\n{updated_original_text}\n\nTranslated text:\n{updated_translated_text}"
+    prompt = f"Evaluate the translation of the following text from {updated_source_language} to {updated_target_language}, considering both content and formality. Provide scores for the following criteria, where each score is between 0 and 1:\n\nContent (weight 1):\n1.1. Correspondence of names, titles\n1.2. Correspondence of numbers with consideration of rounding\n1.3. Meaning\n\nFormality (weight 0.5):\n2.1. Authenticity of phrases\n2.2. Syntax (sentence completion)\n2.3. Morphology (agreement of forms)\nProvide examples of mistakes for each point\nOriginal text:\n{updated_original_text}\n\nTranslated text:\n{updated_translated_text}"
 
-    response = client.completions.create(
-        model="text-davinci-003",
-        prompt=prompt,
-        temperature=0.7,
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "system", "content": prompt}],
+        temperature=0.9,
         max_tokens=512,
         top_p=1,
         frequency_penalty=0,
         presence_penalty=0,
         n=1,
     )
-    evaluation = response.choices[0].text
+    evaluation = response.choices[0].message.content
     return evaluation
+
 
 def main():
     # Set the Streamlit interface
