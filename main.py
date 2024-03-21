@@ -113,7 +113,7 @@ def main():
         evaluation = evaluate_translation(original_transcription_result, translated_transcription_result,
                                           original_language_name, translated_language_name)
 
-        st.markdown("### Translation evaluation by GPT-4:")
+        st.markdown("### Translation evaluation by OPENAI GPT:")
         st.text_area("Evaluation", evaluation)
 
         # Allow user to download the evaluation result
