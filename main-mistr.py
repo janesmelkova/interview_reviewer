@@ -24,7 +24,7 @@ def transcribe_audio(wisp_model, audio_path, output_file, language):
     return output_file
 
 def evaluate_translation(updated_original_text, updated_translated_text, updated_source_language, updated_target_language):
-    mistral_api_key = 'h8kHHzZTmrpAVEBnqQW7Vijti7qN1rGQ'
+    mistral_api_key = os.getenv('MISTRAL_API_KEY')
     if not mistral_api_key:
         return "Ошибка: API ключ Mistral AI не найден."
     mistral_api_url = "https://api.mistral.ai/v1/chat/completions"

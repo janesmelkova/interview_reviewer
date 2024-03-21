@@ -4,6 +4,8 @@ import whisper
 import tempfile
 from openai import OpenAI
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Load the Whisper model
 wisp_model = whisper.load_model("small")
@@ -33,12 +35,12 @@ def evaluate_translation(updated_original_text, updated_translated_text, updated
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "system", "content": prompt}],
-        temperature=0.9,
+        temperature=0.2,
         max_tokens=512,
-        top_p=1,
+        #top_p=1,
         frequency_penalty=0,
         presence_penalty=0,
-        n=1,
+        #n=3,
     )
     evaluation = response.choices[0].message.content
     return evaluation
@@ -59,23 +61,23 @@ def main():
     transcription_languages = {
         "English": "en",
         "Russian": "ru",
-        # Add more languages
+        # Add other languages
     }
 
     evaluation_languages = {
         "English": "English",
         "Russian": "Russian",
-        # Add more languages
+        # Add other languages
     }
 
     selected_original_language = st.selectbox("Select original language", list(transcription_languages.keys()))
-    selected_translated_language = st.selectbox("Select translation language", list(transcription_languages.keys()))
+    selected_translation_language = st.selectbox("Select translation language", list(transcription_languages.keys()))
 
     original_language_code = transcription_languages[selected_original_language]
-    translated_language_code = transcription_languages[selected_translated_language]
+    translated_language_code = transcription_languages[selected_translation_language]
 
     original_language_name = evaluation_languages[selected_original_language]
-    translated_language_name = evaluation_languages[selected_translated_language]
+    translated_language_name = evaluation_languages[selected_translation_language]
 
     original_audio_file = st.file_uploader("Upload original audio file", type=["mp3", "wav"])
     translated_audio_file = st.file_uploader("Upload translated audio file", type=["mp3", "wav"])
