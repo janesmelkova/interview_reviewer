@@ -1,0 +1,6 @@
+/temp/
+.env
+.idea/
+/cache/
+original_transcription.txt
+translated_transcription.txt
