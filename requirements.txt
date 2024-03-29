@@ -3,4 +3,3 @@ openai~=1.14.1
 requests~=2.31.0
 openai-whisper
 requests~=2.31.0
->>>>>>> c818b0030d6b58da554b94cea87b31030c8b7a94
