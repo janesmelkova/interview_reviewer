@@ -2,3 +2,4 @@ openai
 openai_whisper
 python-dotenv
 streamlit
+ffmpeg-python
