@@ -29,8 +29,8 @@ def transcribe_audio(wisp_model, audio_path, output_file, language):
     print(f"Transcription results saved to {output_file}")
     return output_file
 
-def evaluate_translation(updated_original_text, updated_translated_text, updated_source_language, updated_target_language):
-    prompt = f"Evaluate the translation of the following text from {updated_source_language} to {updated_target_language}, considering both content and formality. Provide scores for the following criteria, where each score is between 0 and 1:\n\nContent (weight 1):\n1.1. Correspondence of names, titles\n1.2. Correspondence of numbers with consideration of rounding\n1.3. Meaning\n\nFormality (weight 0.5):\n2.1. Authenticity of phrases\n2.2. Syntax (sentence completion)\n2.3. Morphology (agreement of forms)\nProvide examples of mistakes for each point\nOriginal text:\n{updated_original_text}\n\nTranslated text:\n{updated_translated_text}"
+def evaluate_translation(original_text, translated_text, source_language, target_language):
+    prompt = f"You'll be given a transcription of oral interpretation from {source_language} to {target_language}. You need to evaluate the quality of interpretation considering both content and formality. Provide scores for the following criteria, where each score is between 0 and 10:\n\nContent (weight 1):\n1.1. Correspondence of names, titles\n1.2. Correspondence of numbers with consideration of rounding\n1.3. Meaning\n\nFormality (weight 1):\n2.1. Authenticity of phrases\n2.2. Syntax (sentence completion)\n2.3. Morphology (agreement of forms)\nProvide examples of mistakes for each point\nOriginal text:\n{original_text}\n\nTranslated text:\n{translated_text}"
 
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -58,29 +58,24 @@ def main():
     header_html = '<p style="color:#1a7fe3; font-size: 24px; text-align: center;">Interview Reviewer</p>'
     st.markdown(header_html, unsafe_allow_html=True)
 
-    transcription_languages = {
+    languages = {
         "English": "en",
         "Russian": "ru",
         # Add other languages
     }
 
-    evaluation_languages = {
-        "English": "English",
-        "Russian": "Russian",
-        # Add other languages
-    }
 
-    selected_original_language = st.selectbox("Select original language", list(transcription_languages.keys()))
-    selected_translation_language = st.selectbox("Select translation language", list(transcription_languages.keys()))
+    selected_original_language = st.selectbox("Select original language", list(languages.keys()))
+    selected_translation_language = st.selectbox("Select translation language", list(languages.keys()))
 
-    original_language_code = transcription_languages[selected_original_language]
-    translated_language_code = transcription_languages[selected_translation_language]
+    original_language_code = languages[selected_original_language]
+    translated_language_code = languages[selected_translation_language]
 
-    original_language_name = evaluation_languages[selected_original_language]
-    translated_language_name = evaluation_languages[selected_translation_language]
+    original_language = languages[selected_original_language]
+    translation_language = languages[selected_translation_language]
 
-    original_audio_file = st.file_uploader("Upload original audio file", type=["mp3", "wav"])
-    translated_audio_file = st.file_uploader("Upload translated audio file", type=["mp3", "wav"])
+    original_audio_file = st.file_uploader("Upload original audio file", type=["mp3"])
+    translated_audio_file = st.file_uploader("Upload translated audio file", type=["mp3"])
 
     if original_audio_file is not None and translated_audio_file is not None:
         st.markdown("### Transcription in progress...")
@@ -106,12 +101,12 @@ def main():
         st.text_area("Original Transcription", original_transcription_result)
 
         with open(translated_output_file, "r") as f:
-            translated_transcription_result = f.read()
-        st.text_area("Translated Transcription", translated_transcription_result)
+            translation_transcription_result = f.read()
+        st.text_area("Translated Transcription", translation_transcription_result)
 
         # Evaluate the translation using GPT-4
-        evaluation = evaluate_translation(original_transcription_result, translated_transcription_result,
-                                          original_language_name, translated_language_name)
+        evaluation = evaluate_translation(original_transcription_result, translation_transcription_result,
+                                          original_language, translation_language)
 
         st.markdown("### Translation evaluation by OPENAI GPT:")
         st.text_area("Evaluation", evaluation)
