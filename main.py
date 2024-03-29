@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Load the Whisper model
-wisp_model = whisper.load_model("small")
+wisp_model = whisper.load_model("tiny")
 client = OpenAI(
     api_key=os.getenv('OPENAI_API_KEY')
 )
