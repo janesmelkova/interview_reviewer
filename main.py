@@ -68,9 +68,6 @@ def main():
     selected_original_language = st.selectbox("Select original language", list(languages.keys()))
     selected_translation_language = st.selectbox("Select translation language", list(languages.keys()))
 
-    original_language_code = languages[selected_original_language]
-    translated_language_code = languages[selected_translation_language]
-
     original_language = languages[selected_original_language]
     translation_language = languages[selected_translation_language]
 
@@ -90,9 +87,9 @@ def main():
                 f.write(translated_audio_file.getbuffer())
 
             original_output_file = transcribe_audio(wisp_model, temp_original_audio_path, "original_transcription.txt",
-                                                    original_language_code)
+                                                    original_language)
             translated_output_file = transcribe_audio(wisp_model, temp_translated_audio_path, "translated_transcription.txt",
-                                                      translated_language_code)
+                                                      translation_language)
 
         st.markdown("### Transcription completed!")
 
