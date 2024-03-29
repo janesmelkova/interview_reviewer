@@ -4,6 +4,8 @@ import whisper
 import tempfile
 import requests
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Load the Whisper model
 wisp_model = whisper.load_model("small")
@@ -38,15 +40,19 @@ def evaluate_translation(updated_original_text, updated_translated_text, updated
 
     data = {
         "model": "open-mistral-7b",
-        "messages": [{"role": "system", "content": "You are a professional interpreter who interviews potential candidates for the position of interpreters in your company"}],
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a professional interpreter who interviews potential candidates for the position of interpreters in your company"
+            }
+        ],
         "prompt": prompt,
-        "max_tokens": 512,
-        "temperature": 0.7,
+        "temperature": 0.3,
         "top_p": 1,
-        "frequency_penalty": 0,
-        "presence_penalty": 0,
-        "n": 1,
+        "max_tokens": 512,
     }
+
+
     try:
         response = requests.post(mistral_api_url, headers=headers, json=data)
 

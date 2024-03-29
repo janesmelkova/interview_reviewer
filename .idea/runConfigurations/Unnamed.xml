@@ -4,8 +4,9 @@
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
     <envs>
-      <env name="PYTHONUNBUFFERED" value="1" />
       <env name="OPENAI_API_KEY" value="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" />
+      <env name="PYTHONUNBUFFERED" value="1" />
+      <env name="MISTRAL_API_KEY" value="B9ytJv9K5kd7x8YVp2sYtxJvgCpgbMEt" />
     </envs>
     <option name="SDK_HOME" value="" />
     <option name="SDK_NAME" value="Python 3.9 (venv)" />
@@ -14,7 +15,7 @@
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="net.ashald.envfile">
-      <option name="IS_ENABLED" value="false" />
+      <option name="IS_ENABLED" value="true" />
       <option name="IS_SUBST" value="false" />
       <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
       <option name="IS_IGNORE_MISSING_FILES" value="false" />
