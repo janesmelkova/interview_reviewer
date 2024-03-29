@@ -1,4 +1,4 @@
-openai==1.14.3
-openai_whisper==20231117
-python-dotenv==1.0.1
-streamlit==1.32.2
+openai
+openai_whisper
+python-dotenv
+streamlit
