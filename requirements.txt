@@ -3,4 +3,4 @@ openai_whisper
 python-dotenv
 streamlit
 ffmpeg-python
-torch
+numpy<2.0

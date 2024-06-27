@@ -2,24 +2,40 @@ import base64
 import streamlit as st
 import whisper
 import tempfile
+import torch
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
+def clear_gpu_memory():
+    torch.cuda.empty_cache()
+
+if torch.cuda.is_available():
+    torch.cuda.init()
+
+
 # Load the Whisper model
-wisp_model = whisper.load_model("tiny")
+@st.cache_resource
+def load_model():
+    clear_gpu_memory()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = whisper.load_model("large").to(device)
+    return model, device
+
+
 client = OpenAI(
     api_key=os.getenv('OPENAI_API_KEY')
 )
 
 
-def transcribe_audio(wisp_model, audio_path, output_file, language):
+def transcribe_audio(model, device, audio_path, output_file, language):
     # Load the audio file and transcribe it with progress bar and timer
-    result = wisp_model.transcribe(
+    result = model.transcribe(
         audio_path,
         language=language,
-        fp16=False,
+        fp16=torch.cuda.is_available(),
         verbose=True,
     )
 
@@ -29,18 +45,19 @@ def transcribe_audio(wisp_model, audio_path, output_file, language):
     print(f"Transcription results saved to {output_file}")
     return output_file
 
+
 def evaluate_translation(original_text, translated_text, source_language, target_language):
     prompt = f"You'll be given a transcription of oral interpretation from {source_language} to {target_language}. You need to evaluate the quality of interpretation considering both content and formality. Provide scores for the following criteria, where each score is between 0 and 10:\n\nContent (weight 1):\n1.1. Correspondence of names, titles\n1.2. Correspondence of numbers with consideration of rounding\n1.3. Meaning\n\nFormality (weight 1):\n2.1. Authenticity of phrases\n2.2. Syntax (sentence completion)\n2.3. Morphology (agreement of forms)\nProvide examples of mistakes for each point\nOriginal text:\n{original_text}\n\nTranslated text:\n{translated_text}"
 
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4o-2024-05-13",
         messages=[{"role": "system", "content": prompt}],
         temperature=0.2,
         max_tokens=512,
-        #top_p=1,
+        # top_p=1,
         frequency_penalty=0,
         presence_penalty=0,
-        #n=3,
+        # n=3,
     )
     evaluation = response.choices[0].message.content
     return evaluation
@@ -48,7 +65,7 @@ def evaluate_translation(original_text, translated_text, source_language, target
 
 def main():
     # Set the Streamlit interface
-
+    wisp_model, device = load_model()
     logo_path = "ib_logo 1.jpg"
     with open(logo_path, "rb") as logo_file:
         logo_data = base64.b64encode(logo_file.read()).decode()
@@ -64,7 +81,6 @@ def main():
         # Add other languages
     }
 
-
     selected_original_language = st.selectbox("Select original language", list(languages.keys()))
     selected_translation_language = st.selectbox("Select translation language", list(languages.keys()))
 
@@ -74,7 +90,9 @@ def main():
     original_audio_file = st.file_uploader("Upload original audio file", type=["mp3"])
     translated_audio_file = st.file_uploader("Upload translated audio file", type=["mp3"])
 
-    if original_audio_file is not None and translated_audio_file is not None:
+    start_analyzing = st.button("Start Analyzing")
+
+    if original_audio_file is not None and translated_audio_file is not None and start_analyzing:
         st.markdown("### Transcription in progress...")
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -86,9 +104,10 @@ def main():
             with open(temp_translated_audio_path, "wb") as f:
                 f.write(translated_audio_file.getbuffer())
 
-            original_output_file = transcribe_audio(wisp_model, temp_original_audio_path, "original_transcription.txt",
+            original_output_file = transcribe_audio(wisp_model, device, temp_original_audio_path, "original_transcription.txt",
                                                     original_language)
-            translated_output_file = transcribe_audio(wisp_model, temp_translated_audio_path, "translated_transcription.txt",
+            translated_output_file = transcribe_audio(wisp_model, device, temp_translated_audio_path,
+                                                      "translated_transcription.txt",
                                                       translation_language)
 
         st.markdown("### Transcription completed!")
@@ -116,6 +135,7 @@ def main():
             file_name="evaluation.txt",
             mime="text/plain",
         )
+
 
 if __name__ == "__main__":
     main()
