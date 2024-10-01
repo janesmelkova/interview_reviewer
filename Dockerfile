@@ -20,6 +20,6 @@ COPY . /app
 
 EXPOSE 8501
 
-ENV API_KEY=OPENAI_API_KEY
+ENV API_KEY=MISTRAL_API_KEY
 
 CMD ["streamlit", "run", "main.py", "--server.port", "8501"]

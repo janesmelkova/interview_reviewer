@@ -1,6 +1,10 @@
-openai
+openai~=1.14.3
 openai_whisper
-python-dotenv
-streamlit
+python-dotenv~=1.0.1
+streamlit~=1.36.0
 ffmpeg-python
 numpy<2.0
+mistralai~=0.1.6
+torch~=2.2.1
+pydub~=0.25.1
+moviepy~=1.0.3
