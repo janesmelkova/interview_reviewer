@@ -9,9 +9,8 @@ from dotenv import load_dotenv
 from mistralai.async_client import MistralAsyncClient
 from mistralai.models.chat_completion import ChatMessage
 import threading
-from moviepy.editor import VideoFileClip  # Для работы с видеофайлами
+from moviepy.editor import VideoFileClip
 
-# Load environment variables
 load_dotenv()
 
 MISTRAL_API_KEY = os.getenv('MISTRAL_API_KEY')
@@ -163,7 +162,6 @@ def main():
         "Russian": "ru",
         "Uzbek": "uz",
         "Chinese": "zh"
-        # Add other languages as needed
     }
 
     selected_original_language = st.selectbox("Select original language", list(languages.keys()))
