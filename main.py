@@ -29,7 +29,7 @@ def load_model():
     """Loads the Whisper model and returns it with the device."""
     clear_gpu_memory()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = whisper.load_model("large").to(device)
+    model = whisper.load_model("large-v3-turbo").to(device)
     return model, device
 
 def extract_audio_from_video(video_data):

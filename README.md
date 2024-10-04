@@ -21,7 +21,7 @@ The accuracy of evaluations depends on several factors:
 
 Whisper's performance varies widely depending on the language. The figure below shows a performance breakdown of `large-v3` and `large-v2` models by language, using WERs (word error rates) or CER (character error rates, shown in *Italic*) evaluated on the Common Voice 15 and Fleurs datasets. Additional WER/CER metrics corresponding to the other models and datasets can be found in Appendix D.1, D.2, and D.4 of [the paper](https://arxiv.org/abs/2212.04356), as well as the BLEU (Bilingual Evaluation Understudy) scores for translation in Appendix D.3.
 
-![WER breakdown by language](https://github.com/openai/whisper/assets/266841/f4619d66-1058-4005-8f67-a9d811b77c62) (see [Whisper's GitHub ReadMe](https://github.com/openai/whisper/blob/main/README.md) for more details)
+![WER breakdown by language](https://github.com/openai/whisper/assets/266841/f4619d66-1058-4005-8f67-a9d811b77c62) (For more details, see [Whisper's GitHub ReadMe](https://github.com/openai/whisper/blob/main/README.md))
 
 ## License
 
